@@ -1,4 +1,5 @@
 from mcp.server.fastmcp import FastMCP
+import random
 
 #Name of the MCP server
 mcp = FastMCP(name="jellybeans")
@@ -14,20 +15,43 @@ def favorite_food() -> dict:
 
 #Expose a tool named "add-beans"
 @mcp.tool("add-beans")
-def add_beans(text: str) -> dict:
-    """Add several references to jellybeans in the given text"""
-    # Add jellybean references throughout the text
-    enhanced_text = f"🍬 {text} 🍬"
-    enhanced_text = enhanced_text.replace(".", ". 🫘")
-    enhanced_text = enhanced_text.replace("!", "! 🫘")
-    enhanced_text = enhanced_text.replace("?", "? 🫘")
+def add_beans(text: str, intensity: str = "moderate") -> dict:
+    """Add jellybean references to the given text with configurable intensity"""
     
-    # Add some jellybean-themed phrases
-    enhanced_text += " 🫘 This text is now sprinkled with jellybeans! 🫘"
+    # Define intensity levels
+    intensity_levels = {
+        "subtle": {"prefix": "🍬 ", "suffix": " 🫘", "replacements": 0.3},
+        "moderate": {"prefix": "🍬 ", "suffix": " 🫘", "replacements": 0.6},
+        "intense": {"prefix": "🍬🍬 ", "suffix": " 🍬🫘", "replacements": 0.9}
+    }
+    
+    level = intensity_levels.get(intensity, intensity_levels["moderate"])
+    
+    # Add jellybean-themed enhancements
+    enhanced_text = level["prefix"] + text + level["suffix"]
+    
+    # Add jellybean references at sentence boundaries
+    sentences = enhanced_text.split('. ')
+    if len(sentences) > 1:
+        enhanced_sentences = []
+        for i, sentence in enumerate(sentences):
+            if i > 0:  # Don't add to first sentence
+                enhanced_sentences.append(sentence + " 🫘")
+            else:
+                enhanced_sentences.append(sentence)
+        enhanced_text = '. '.join(enhanced_sentences)
+    
+    # Add a creative jellybean conclusion
+    conclusions = [
+        " 🫘 Now this text is as sweet as jellybeans! 🫘",
+        " 🫘 Sprinkled with jellybean magic! 🫘",
+        " 🫘 Sweetened with jellybean goodness! 🫘"
+    ]
+    enhanced_text += random.choice(conclusions)
     
     return {
         "content": enhanced_text,
-        "text": f"I've enhanced your text with jellybean references! The original text was: '{text}'. I've added jellybean emojis, replaced punctuation with bean emojis, and added a jellybean-themed conclusion."
+        "text": f"I've enhanced your text with jellybean references at '{intensity}' intensity! The original text was: '{text}'. I've added jellybean emojis, enhanced sentence endings, and included a sweet jellybean conclusion."
     }
 
 if __name__ == "__main__":
